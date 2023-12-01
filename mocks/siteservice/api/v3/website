@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "arc-demo-1",
+    "display_name": "Arc Demo 1",
+    "is_default_website": true
+  },
+  {
+    "_id": "arc-demo-2",
+    "display_name": "Arc Demo 2",
+    "is_default_website": false
+  }
+]
