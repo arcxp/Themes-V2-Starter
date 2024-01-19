@@ -99,6 +99,66 @@ function fetchSiteData() {
   }
 }
 
+function updateResizer(resizerVersion) {
+  const environmentPath = 'environment/index.json'
+  const environmentFile = JSON.parse(fs.readFileSync(environmentPath, 'utf-8'))
+  updatedContent = environmentFile
+  updatedContent.RESIZER_TOKEN_VERSION = resizerVersion
+  console.log(`Updated RESIZER_TOKEN_VERSION to: `, resizerVersion)
+  fs.writeFileSync(environmentPath, JSON.stringify(updatedContent), 'utf-8')
+}
+
+function fetchResizerVersion() {
+  try {
+    const contentBase = process.env.CONTENT_BASE;
+    const accessToken = process.env.ARC_ACCESS_TOKEN;
+
+    if (!contentBase || !accessToken) {
+      throw new Error('CONTENT_BASE or ARC_ACCESS_TOKEN is not defined in environment variables.');
+    }
+
+    const apiUrl = `${contentBase}/delivery-api/v1/organization/hmac-key/resizer?enabled=true`;
+
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+
+    const req = https.request(apiUrl, options, (res) => {
+      let data = '';
+
+      // A chunk of data has been received.
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      // The whole response has been received.
+      res.on('end', () => {
+        try {
+          const resizerVersion = JSON.parse(data)[0].ssm_version;
+          if (resizerVersion != 1) {
+            updateResizer(resizerVersion)
+          }
+        } catch (parseError) {
+          console.error('Error parsing resizer JSON:', parseError.message);
+        }
+      });
+    });
+
+    // Handle errors during the request
+    req.on('error', (error) => {
+      console.error('Error fetching resizer data:', error.message);
+    });
+
+    // End the request
+    req.end();
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
 function addToGitignore() {
   const gitignorePath = '.gitignore';
 
@@ -138,6 +198,7 @@ if (!command) {
 switch (command) {
   case 'pull-site-data':
     fetchSiteData()
+    fetchResizerVersion()
     addToGitignore()
     break
   default:
