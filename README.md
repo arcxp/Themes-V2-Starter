@@ -1,6 +1,6 @@
 # Arc Themes Feature Pack
 
-This repository is used by the Arc Themes team for development, testing of Arc Themes Blocks
+This repository is an Arc Themes Starter bundle
 
 ## How To Do Local Themes Development
 
