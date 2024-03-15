@@ -57,25 +57,31 @@ function fetchEnvs() {
   if (process.env.PROD_DEPLOYER_ENDPOINT) {
     envs.push("prod");
   }
+  console.log(envs);
   return envs;
 }
 
+//NEEDS TO BE UPDATED FOR PRIMARY SITE
 function fetchEnvironmentVariables(env) {
   let baseUrl = "";
   let auth = "";
-
+  let siteName = orgID;
   if (env === "sandbox") {
     baseUrl = process.env.CONTENT_BASE;
     auth = process.env.ARC_ACCESS_TOKEN;
+    resizerUrl = `https://${orgID}-${siteName}-sandbox.web.arc-cdn.net/resizer/v2/`;
   } else if (env === "dev") {
     baseUrl = process.env.STAGING_DEPLOYER_ENDPOINT;
     auth = process.env.STAGING_ACCESS_TOKEN;
+    resizerUrl = `https://${orgID}-${siteName}-sandbox.web.arc-cdn.net/resizer/v2/`;
   } else if (env === "staging") {
     baseUrl = process.env.DEV_DEPLOYER_ENDPOINT;
     auth = process.env.DEV_ACCESS_TOKEN;
+    resizerUrl = `https://${orgID}-${siteName}-prod.web.arc-cdn.net/resizer/v2/`;
   } else if (env === "prod") {
     baseUrl = process.env.PROD_DEPLOYER_ENDPOINT;
     auth = process.env.PROD_ACCESS_TOKEN;
+    resizerUrl = `https://${orgID}-${siteName}-prod.web.arc-cdn.net/resizer/v2/`;
   }
 
   return {baseUrl, auth};
@@ -280,7 +286,7 @@ async function uploadFile(form, uploadUrl) {
   }
 }
 
-async function uploadBundle() {
+async function uploadAndDeploy() {
   try {
     zipBundle(zipFileName);
     for (const env of envs) {
@@ -306,9 +312,62 @@ async function uploadBundle() {
           // error
         );
       }
+      // const buildNum = await createBuild();
+      // await completeBuild();
+      // await promoteBuild();
+      // console.log(`Build successfully deployed in ${env}`);
     }
   } catch (error) {
     console.log("There was an error during deployment:", error);
+  }
+}
+
+async function createBuild() {
+  const apiUrl = `${contentBase}/themesettings/api/build`;
+
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+
+  try {
+    const response = await axios.post(apiUrl, {headers});
+    console.log(`${response.data.buildNum} Completed`);
+    return response.build.buildNum;
+  } catch (error) {
+    console.error("Error promoting build:", error);
+    throw error;
+  }
+}
+
+async function completeBuild() {
+  const apiUrl = `${contentBase}/themesettings/api/complete-build`;
+
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+
+  try {
+    const response = await axios.post(apiUrl, {headers});
+    console.log(`${response.data.buildNum} Completed`);
+  } catch (error) {
+    console.error("Error promoting build:", error);
+    throw error;
+  }
+}
+
+async function promoteBuild() {
+  const apiUrl = `${contentBase}/themesettings/api/promote-build`;
+
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+
+  try {
+    const response = await axios.post(apiUrl, {headers});
+    console.log(`${response.data.buildNum} Promoted Successfully`);
+  } catch (error) {
+    console.error("Error promoting build:", error);
+    throw error;
   }
 }
 
@@ -317,7 +376,7 @@ async function configureAndDeploy() {
     addToGitignore();
     await updateFiles();
     await fetchResizerVersion();
-    await uploadBundle();
+    await uploadAndDeploy();
   } catch (error) {
     console.log("There wa an error during deployment:", error);
   }
@@ -340,10 +399,11 @@ switch (command) {
     zipBundle(zipFileName);
     break;
   case "upload":
-    uploadBundle();
+    uploadAndDeploy();
     break;
   case "test":
-    console.log(themesVersion);
+    fetchEnvs();
+    // console.log(themesVersion);
     break;
   case "configure-and-deploy":
     configureAndDeploy();
