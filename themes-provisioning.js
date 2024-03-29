@@ -3,9 +3,9 @@ const FormData = require("form-data");
 const fs = require("fs");
 const util = require("util");
 require("dotenv").config();
-// const { promisify } = require('util')
+const {promisify} = require("util");
 const {execSync} = require("child_process");
-// const sleep = promisify(setTimeout)
+const sleep = promisify(setTimeout);
 
 require("dotenv").config();
 
@@ -20,9 +20,53 @@ const day = String(date.getDate()).padStart(2, "0");
 const dateStr = `${month}_${day}`;
 const zipFileName = `${orgID}_${dateStr}`;
 // const zipFileName = `${orgID}-themes-deployment-test`;
-// const delay = process.env.POLLING_DELAY || 10000
-// const timeout = process.env.TIMEOUT || 30
+const delay = process.env.POLLING_DELAY || 10000;
+const timeout = process.env.TIMEOUT || 30;
 // let latestServiceVersion = null
+
+// Load all tables:
+async function loadTables() {
+  const tables = ["build", "values", "blocks", "blocks-json"];
+  const maxRetries = 10;
+  const delay = 3000; // 3 seconds
+  console.log("Checking Themes tables");
+  for (const env of envs) {
+    const {baseUrl, auth} = await fetchEnvironmentVariables(env);
+    const headers = {
+      Authorization: `Bearer ${auth}`,
+    };
+
+    for (const table of tables) {
+      let retries = 0;
+      while (retries < maxRetries) {
+        const apiUrl = `${baseUrl}/themesettings/api/${table}`;
+        try {
+          const response = await axios.get(apiUrl, {headers});
+          if (response.status === 200) {
+            console.log(`Successfully fetched ${table} data for ${env}`);
+            break;
+          }
+        } catch (error) {
+          if (table === "values" && retries === 0) {
+            console.log("CREATING NEW BUILD");
+            await createBuild(baseUrl, auth);
+          } else {
+            console.error(
+              `Unable to fetch ${table} data for ${env}, trying again`
+            );
+          }
+          retries++;
+          if (retries === maxRetries) {
+            console.error(`Exceeded maximum retries for ${env} - ${table}`);
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    }
+    console.log("Themes Tables have loaded");
+  }
+}
 
 function fetchOrgID() {
   if (!contentBase) {
@@ -32,15 +76,37 @@ function fetchOrgID() {
   }
 }
 
-async function fetchThemesVersion() {
+async function fetchThemesVersion(retries = 0) {
+  //Make sure there is an active build so the blocks-json endpoint returns data
+  const buildStatus = await getBuildStatus(contentBase, authToken);
+  if (!buildStatus || buildStatus === null || buildStatus === "COMPLETED") {
+    console.log("Creating New Build");
+    const buildNum = await createBuild(contentBase, authToken);
+  }
+
   const apiUrl = `${contentBase}/themesettings/api/blocks-json`;
 
   const headers = {
     Authorization: `Bearer ${authToken}`,
   };
 
-  const response = await axios.get(apiUrl, {headers});
-  return response.data.themesReleaseVersion;
+  try {
+    const response = await axios.get(apiUrl, {headers});
+    if (response.status === 200) {
+      return response.data.themesReleaseVersion;
+    } else {
+      if (retries < 10) {
+        console.log(`Received ${response.status} response, retrying...`);
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second
+        return fetchThemesVersion(retries + 1); // Retry
+      } else {
+        throw new Error("Exceeded maximum retry attempts");
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching themes version:", error);
+    process.exit(1);
+  }
 }
 
 function fetchEnvs() {
@@ -61,30 +127,30 @@ function fetchEnvs() {
   return envs;
 }
 
-//NEEDS TO BE UPDATED FOR PRIMARY SITE
-function fetchEnvironmentVariables(env) {
+async function fetchEnvironmentVariables(env) {
   let baseUrl = "";
   let auth = "";
-  let siteName = orgID;
+  let resizerUrl = "";
+  const defaultSite = await fetchDefaultSiteId();
   if (env === "sandbox") {
     baseUrl = process.env.CONTENT_BASE;
     auth = process.env.ARC_ACCESS_TOKEN;
-    resizerUrl = `https://${orgID}-${siteName}-sandbox.web.arc-cdn.net/resizer/v2/`;
-  } else if (env === "dev") {
+    resizerUrl = `https://${orgID}-${defaultSite}-sandbox.web.arc-cdn.net/resizer/v2/`;
+  } else if (env === "staging") {
     baseUrl = process.env.STAGING_DEPLOYER_ENDPOINT;
     auth = process.env.STAGING_ACCESS_TOKEN;
-    resizerUrl = `https://${orgID}-${siteName}-sandbox.web.arc-cdn.net/resizer/v2/`;
-  } else if (env === "staging") {
+    resizerUrl = `https://${orgID}-${defaultSite}-staging.web.arc-cdn.net/resizer/v2/`;
+  } else if (env === "dev") {
     baseUrl = process.env.DEV_DEPLOYER_ENDPOINT;
     auth = process.env.DEV_ACCESS_TOKEN;
-    resizerUrl = `https://${orgID}-${siteName}-prod.web.arc-cdn.net/resizer/v2/`;
+    resizerUrl = `https://${orgID}-${defaultSite}-dev.web.arc-cdn.net/resizer/v2/`;
   } else if (env === "prod") {
     baseUrl = process.env.PROD_DEPLOYER_ENDPOINT;
     auth = process.env.PROD_ACCESS_TOKEN;
-    resizerUrl = `https://${orgID}-${siteName}-prod.web.arc-cdn.net/resizer/v2/`;
+    resizerUrl = `https://${orgID}-${defaultSite}-prod.web.arc-cdn.net/resizer/v2/`;
   }
 
-  return {baseUrl, auth};
+  return {baseUrl, auth, resizerUrl};
 }
 
 // PREPARE THE BUNDLE
@@ -97,8 +163,33 @@ function parseSites(sites) {
   return sitesObject;
 }
 
-function findDefaultSite(sites) {
-  return sites.find((site) => site.is_default_website === true)._id;
+async function fetchDefaultSiteId() {
+  baseURL = contentBase || process.env.PROD_DEPLOYER_ENDPOINT;
+  auth = authToken || process.env.PROD_ACCESS_TOKEN;
+
+  const apiUrl = `${baseURL}/site/v3/website/`;
+  const headers = {
+    Authorization: `Bearer ${auth}`,
+  };
+
+  try {
+    const response = await axios.get(apiUrl, {headers});
+    if (response.status === 200) {
+      const data = response.data;
+      const defaultSite = data.find((site) => site.is_default_website === true);
+      if (defaultSite) {
+        return defaultSite._id;
+      } else {
+        console.log("No default site found. Using Org ID");
+        return orgID;
+      }
+    } else {
+      throw new Error(`Failed to fetch data, status code: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error fetching default site ID or orgId:", error);
+    process.exit(1);
+  }
 }
 
 function updateEnvironment(data) {
@@ -115,16 +206,27 @@ function updateEnvironment(data) {
   );
 }
 
-function updateBlocksJSON(data, themesVersion) {
+async function updateBlocksJSON(data, themesVersion, defaultSite) {
+  const sitesObject = {};
+
+  data.forEach((site) => {
+    sitesObject[site._id] = {
+      siteProperties: {
+        websiteName: site.display_name || site._id,
+      },
+    };
+  });
+
   const blocksPath = "blocks.json";
   const blocksJSON = JSON.parse(fs.readFileSync(blocksPath, "utf-8"));
   const orgID = fetchOrgID();
-  const siteName = findDefaultSite(data);
-  const updatedResizerURL = `https://${orgID}-${siteName}-sandbox.web.arc-cdn.net/resizer/v2/`;
+
+  const updatedResizerURL = `https://${orgID}-${defaultSite}-sandbox.web.arc-cdn.net/resizer/v2/`;
 
   const updatedContent = blocksJSON;
   updatedContent.values.default.siteProperties.resizerURL = updatedResizerURL;
   updatedContent.themesReleaseVersion = themesVersion;
+  updatedContent.values.sites = sitesObject;
 
   fs.writeFileSync(
     blocksPath,
@@ -142,13 +244,13 @@ async function updateFiles() {
     }
 
     const apiUrl = `${contentBase}/site/v3/website/`;
-
     const headers = {
       Authorization: `Bearer ${authToken}`,
     };
 
     const response = await axios.get(apiUrl, {headers});
     const themesVersion = await fetchThemesVersion();
+    const defaultSite = await fetchDefaultSiteId();
     console.log("Themes Version:", themesVersion);
 
     const data = response.data;
@@ -158,7 +260,7 @@ async function updateFiles() {
       "utf-8"
     );
     updateEnvironment(data);
-    updateBlocksJSON(data, themesVersion);
+    await updateBlocksJSON(data, themesVersion, defaultSite);
   } catch (error) {
     console.error("Error:", error.message);
   }
@@ -286,11 +388,11 @@ async function uploadFile(form, uploadUrl) {
   }
 }
 
-async function uploadAndDeploy() {
+async function uploadAndDeploy(environments = envs) {
   try {
     zipBundle(zipFileName);
-    for (const env of envs) {
-      const {baseUrl, auth} = fetchEnvironmentVariables(env);
+    for (const env of environments) {
+      const {baseUrl, auth, resizerUrl} = await fetchEnvironmentVariables(env);
       try {
         console.log("Requesting upload data from API");
         const {status: apiStatus, data: apiData} = await getUploadMetadata(
@@ -308,58 +410,167 @@ async function uploadAndDeploy() {
         console.error(
           env,
           "Upload failed, deployment skipped for environment:"
-          // env,
-          // error
         );
       }
-      // const buildNum = await createBuild();
-      // await completeBuild();
-      // await promoteBuild();
-      // console.log(`Build successfully deployed in ${env}`);
+
+      const buildStatus = getBuildStatus(baseUrl, auth);
+      if (!buildStatus || buildStatus === null || buildStatus === "COMPLETED") {
+        console.log("Creating New Build");
+        const buildNum = await createBuild(baseUrl, auth);
+      }
+      await updateFields(baseUrl, auth, resizerUrl);
+      await selectBundle(baseUrl, auth);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await completeBuild(baseUrl, auth);
+      await checkDeployment(baseUrl, auth);
+      await promoteBuild(baseUrl, auth);
+      console.log(`Build successfully deployed in ${env}`);
+      // else {
+      //   console.log(
+      //     `There is an active build in the ${env} environment.\n Complete the current build and rerun command`
+      //   );
+      // }
     }
   } catch (error) {
     console.log("There was an error during deployment:", error);
   }
 }
 
-async function createBuild() {
-  const apiUrl = `${contentBase}/themesettings/api/build`;
-
+async function createBuild(baseUrl, auth) {
+  const apiUrl = `${baseUrl}/themesettings/api/build`;
+  console.log("Create Build URL:", apiUrl, auth);
   const headers = {
-    Authorization: `Bearer ${authToken}`,
+    Authorization: `Bearer ${auth}`,
   };
 
   try {
-    const response = await axios.post(apiUrl, {headers});
-    console.log(`${response.data.buildNum} Completed`);
+    const response = await axios.post(apiUrl, {}, {headers});
+    console.log(`${response.data.buildNum} Created`);
     return response.build.buildNum;
   } catch (error) {
-    console.error("Error promoting build:", error);
+    console.error("Error creating build");
+  }
+}
+
+async function updateFields(baseUrl, auth, resizerUrl) {
+  const apiUrl = `${baseUrl}/themesettings/api/values`;
+
+  const headers = {
+    Authorization: `Bearer ${auth}`,
+  };
+
+  const body = {
+    siteId: "default",
+    build: "latest",
+    fields: [
+      {
+        fieldId: "resizerURL",
+        value: resizerUrl,
+      },
+      {
+        fieldId: "fallbackImage",
+        value:
+          "https://static.themebuilder.aws.arc.pub/themesinternal-sandbox/1622831876027.png",
+      },
+    ],
+  };
+
+  try {
+    const response = await axios.post(apiUrl, body, {headers});
+    console.log("Fields updated successfully");
+  } catch (error) {
+    console.error("Error updating fields:", error);
     throw error;
   }
 }
 
-async function completeBuild() {
-  const apiUrl = `${contentBase}/themesettings/api/complete-build`;
+function getBlocks() {
+  try {
+    const blocksArray = JSON.parse(
+      fs.readFileSync("blocks.json", "utf-8")
+    ).blocks;
+    return blocksArray;
+  } catch (error) {
+    console.error("Error reading blocks.json:", error);
+    throw error;
+  }
+}
+
+async function selectBundle(baseUrl, auth) {
+  const blocksArray = getBlocks();
+  const apiUrl = `${baseUrl}/themesettings/api/blocks`;
 
   const headers = {
-    Authorization: `Bearer ${authToken}`,
+    Authorization: `Bearer ${auth}`,
+  };
+
+  const body = {
+    blocks: blocksArray,
+    bundleVersion: zipFileName,
+    build: "latest",
+  };
+
+  try {
+    const response = await axios.post(apiUrl, body, {headers});
+    console.log("Bundle successfully selected");
+  } catch (error) {
+    console.error("Error updating fields:", error);
+    throw error;
+  }
+}
+
+async function completeBuild(baseUrl, auth) {
+  const apiUrl = `${baseUrl}/themesettings/api/complete-build`;
+
+  const headers = {
+    Authorization: `Bearer ${auth}`,
   };
 
   try {
     const response = await axios.post(apiUrl, {headers});
     console.log(`${response.data.buildNum} Completed`);
   } catch (error) {
-    console.error("Error promoting build:", error);
+    console.error("Error completing build:", error);
     throw error;
   }
 }
 
-async function promoteBuild() {
-  const apiUrl = `${contentBase}/themesettings/api/promote-build`;
+async function getBuildStatus(baseUrl, auth) {
+  const apiUrl = `${baseUrl}/themesettings/api/build`;
 
   const headers = {
-    Authorization: `Bearer ${authToken}`,
+    Authorization: `Bearer ${auth}`,
+  };
+
+  try {
+    const response = await axios.get(apiUrl, {headers});
+    console.log("Build Status", response?.data?.build?.status);
+    return response.data?.build?.status;
+  } catch (error) {
+    console.error("Error checking build status:", error);
+    throw error;
+  }
+}
+
+async function checkDeployment(baseUrl, auth) {
+  console.log(`Checking if deployment has completed...`);
+
+  for (let i = 0; i < limit; i += 1) {
+    await sleep(delay);
+    const buildStatus = getBuildStatus(baseUrl, auth);
+    if (buildStatus === "COMPLETED") return newValue;
+  }
+
+  throw new Error(
+    "Bundle did not deploy within the set time. Further investigation required. One possible solution is to increase the timeout, if the bundle was eventually deployed"
+  );
+}
+
+async function promoteBuild(baseUrl, auth) {
+  const apiUrl = `${baseUrl}/themesettings/api/promote-build`;
+
+  const headers = {
+    Authorization: `Bearer ${auth}`,
   };
 
   try {
@@ -391,6 +602,7 @@ if (!command) {
 
 switch (command) {
   case "configure-bundle":
+    loadTables();
     updateFiles();
     fetchResizerVersion();
     addToGitignore();
@@ -401,12 +613,11 @@ switch (command) {
   case "upload":
     uploadAndDeploy();
     break;
-  case "test":
-    fetchEnvs();
-    // console.log(themesVersion);
-    break;
   case "configure-and-deploy":
     configureAndDeploy();
+    break;
+  case "load-tables":
+    loadTables();
     break;
   default:
     console.error(`Unknown command: ${command}`);
