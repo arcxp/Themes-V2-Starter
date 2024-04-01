@@ -47,8 +47,8 @@ async function loadTables() {
             break;
           }
         } catch (error) {
-          if (table === "values" && retries === 0) {
-            console.log("CREATING NEW BUILD");
+          if (retries === 0) {
+            console.log("Could not fetch data, attempting to create new build");
             await createBuild(baseUrl, auth);
           } else {
             console.error(
@@ -79,7 +79,7 @@ function fetchOrgID() {
 async function fetchThemesVersion(retries = 0) {
   //Make sure there is an active build so the blocks-json endpoint returns data
   const buildStatus = await getBuildStatus(contentBase, authToken);
-  if (!buildStatus || buildStatus === null || buildStatus === "COMPLETED") {
+  if (!buildStatus || buildStatus === null || buildStatus === "COMPLETE") {
     console.log("Creating New Build");
     const buildNum = await createBuild(contentBase, authToken);
   }
@@ -414,13 +414,12 @@ async function uploadAndDeploy(environments = envs) {
       }
 
       const buildStatus = getBuildStatus(baseUrl, auth);
-      if (!buildStatus || buildStatus === null || buildStatus === "COMPLETED") {
+      if (!buildStatus || buildStatus === null || buildStatus === "COMPLETE") {
         console.log("Creating New Build");
         const buildNum = await createBuild(baseUrl, auth);
       }
       await updateFields(baseUrl, auth, resizerUrl);
       await selectBundle(baseUrl, auth);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       await completeBuild(baseUrl, auth);
       await checkDeployment(baseUrl, auth);
       await promoteBuild(baseUrl, auth);
@@ -438,7 +437,6 @@ async function uploadAndDeploy(environments = envs) {
 
 async function createBuild(baseUrl, auth) {
   const apiUrl = `${baseUrl}/themesettings/api/build`;
-  console.log("Create Build URL:", apiUrl, auth);
   const headers = {
     Authorization: `Bearer ${auth}`,
   };
@@ -527,8 +525,8 @@ async function completeBuild(baseUrl, auth) {
   };
 
   try {
-    const response = await axios.post(apiUrl, {headers});
-    console.log(`${response.data.buildNum} Completed`);
+    const response = await axios.post(apiUrl, {}, {headers});
+    console.log(`Build #${response.data.buildNum} Completed`);
   } catch (error) {
     console.error("Error completing build:", error);
     throw error;
@@ -544,7 +542,7 @@ async function getBuildStatus(baseUrl, auth) {
 
   try {
     const response = await axios.get(apiUrl, {headers});
-    console.log("Build Status", response?.data?.build?.status);
+    console.log("Build Status: ", response?.data?.build?.status);
     return response.data?.build?.status;
   } catch (error) {
     console.error("Error checking build status:", error);
@@ -555,10 +553,10 @@ async function getBuildStatus(baseUrl, auth) {
 async function checkDeployment(baseUrl, auth) {
   console.log(`Checking if deployment has completed...`);
 
-  for (let i = 0; i < limit; i += 1) {
+  for (let i = 0; i < timeout; i += 1) {
     await sleep(delay);
-    const buildStatus = getBuildStatus(baseUrl, auth);
-    if (buildStatus === "COMPLETED") return newValue;
+    const buildStatus = await getBuildStatus(baseUrl, auth);
+    if (buildStatus === "COMPLETE") return buildStatus;
   }
 
   throw new Error(
@@ -574,8 +572,8 @@ async function promoteBuild(baseUrl, auth) {
   };
 
   try {
-    const response = await axios.post(apiUrl, {headers});
-    console.log(`${response.data.buildNum} Promoted Successfully`);
+    const response = await axios.post(apiUrl, {}, {headers});
+    console.log(`Build #${response.data.buildNum} Promoted Successfully`);
   } catch (error) {
     console.error("Error promoting build:", error);
     throw error;
@@ -585,11 +583,12 @@ async function promoteBuild(baseUrl, auth) {
 async function configureAndDeploy() {
   try {
     addToGitignore();
+    await loadTables();
     await updateFiles();
     await fetchResizerVersion();
     await uploadAndDeploy();
   } catch (error) {
-    console.log("There wa an error during deployment:", error);
+    console.log("There was an error during deployment:", error);
   }
 }
 

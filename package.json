@@ -47,6 +47,7 @@
     "util": "^0.12.5"
   },
   "dependencies": {
+    "semver": "^7.6.0",
     "thumbor-lite": "^0.1.6"
   },
   "jest": {
