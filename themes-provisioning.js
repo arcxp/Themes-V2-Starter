@@ -592,6 +592,41 @@ async function configureAndDeploy() {
   }
 }
 
+function createRepo() {
+  try {
+    execSync("git rm --cached themes-provisioning.js", {stdio: "inherit"});
+    console.log("Removed themes-provisioning.js from git cache");
+
+    execSync("git add .", {stdio: "inherit"});
+    console.log("Added all files to git");
+
+    execSync('git commit -m "Initial commit"', {stdio: "inherit"});
+    console.log("Committed changes");
+
+    execSync(
+      `gh repo create arcxp-ce-support/${orgID}-Themes2-Mirror --private`,
+      {stdio: "inherit"}
+    );
+    console.log("Created GitHub repository");
+
+    execSync(
+      `git remote set-url origin git@github.com:arcxp-ce-support/${orgID}-Themes2-Mirror.git`,
+      {stdio: "inherit"}
+    );
+    console.log("Set remote URL to new repo");
+
+    execSync("git push -u origin main", {stdio: "inherit"});
+    console.log(
+      `Pushed to remote. Repo can be found at https://github.com/arcxp-ce-support/${orgID}-Themes2-Mirror`
+    );
+  } catch (error) {
+    console.error(
+      "Error:",
+      error.stderr ? error.stderr.toString() : error.toString()
+    );
+  }
+}
+
 const command = process.argv[2];
 
 if (!command) {
@@ -600,6 +635,9 @@ if (!command) {
 }
 
 switch (command) {
+  case "load-tables":
+    loadTables();
+    break;
   case "configure-bundle":
     loadTables();
     updateFiles();
@@ -615,8 +653,8 @@ switch (command) {
   case "configure-and-deploy":
     configureAndDeploy();
     break;
-  case "load-tables":
-    loadTables();
+  case "create-repo":
+    createRepo();
     break;
   default:
     console.error(`Unknown command: ${command}`);
