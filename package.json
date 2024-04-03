@@ -16,7 +16,7 @@
     "start": "fusion start"
   },
   "devDependencies": {
-    "@arc-fusion/cli": "^2.2.4"
-  },
-  "dependencies": {}
+    "@arc-fusion/cli": "^2.2.4",
+    "axios": "^1.6.8"
+  }
 }
