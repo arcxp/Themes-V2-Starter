@@ -307,7 +307,6 @@ function addToGitignore() {
   const gitignorePath = ".gitignore";
 
   return new Promise((resolve, reject) => {
-    // Read the current content of .gitignore
     fs.readFile(gitignorePath, "utf8", (err, data) => {
       if (err) {
         console.error(`Error reading ${gitignorePath}: ${err.message}`);
@@ -582,13 +581,13 @@ async function promoteBuild(baseUrl, auth) {
   }
 }
 
-async function configureAndDeploy() {
+async function configureAndDeploy(environments = envs) {
   try {
     await addToGitignore();
     await loadTables();
     await updateFiles();
     await fetchResizerVersion();
-    await uploadAndDeploy();
+    await uploadAndDeploy(environments);
   } catch (error) {
     console.log("There was an error during deployment:", error);
   }
@@ -638,6 +637,7 @@ async function createRepo() {
 }
 
 const command = process.argv[2];
+const environments = process.argv[3]?.split(",");
 
 if (!command) {
   console.error("Usage: node themes-provisioning.js <command>");
@@ -658,10 +658,10 @@ switch (command) {
     zipBundle(zipFileName);
     break;
   case "upload":
-    uploadAndDeploy();
+    uploadAndDeploy(environments);
     break;
   case "configure-and-deploy":
-    configureAndDeploy();
+    configureAndDeploy(environments);
     break;
   case "create-repo":
     createRepo();
