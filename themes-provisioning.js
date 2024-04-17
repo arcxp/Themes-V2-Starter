@@ -338,6 +338,17 @@ function addToGitignore() {
   });
 }
 
+async function configureBundle() {
+  try {
+    await loadTables();
+    await updateFiles();
+    await fetchResizerVersion();
+    await addToGitignore();
+  } catch (error) {
+    console.log("There was an error during bundle configuration:", error);
+  }
+}
+
 // ZIP AND DEPLOY THE BUNDLE
 function zipBundle(zipFileName) {
   if (!fs.existsSync("dist")) {
@@ -649,10 +660,7 @@ switch (command) {
     loadTables();
     break;
   case "configure-bundle":
-    loadTables();
-    updateFiles();
-    fetchResizerVersion();
-    addToGitignore();
+    configureBundle();
     break;
   case "zip-bundle":
     zipBundle(zipFileName);
