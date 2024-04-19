@@ -261,7 +261,7 @@ async function updateFiles() {
     updateEnvironment(data);
     await updateBlocksJSON(data, themesVersion, defaultSite);
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error("Error Updating Files:", error.message);
   }
 }
 
@@ -299,7 +299,7 @@ async function fetchResizerVersion() {
       updateResizer(resizerVersion);
     }
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error("Error Fetching Resizer Version:", error);
   }
 }
 
@@ -395,7 +395,7 @@ async function uploadFile(form, uploadUrl) {
     });
     return response;
   } catch (error) {
-    // console.error("Upload failed:", error);
+    console.error("Upload failed:", error);
     throw error;
   }
 }
@@ -420,8 +420,7 @@ async function uploadAndDeploy(environments = envs) {
         console.log(`S3 upload complete: status code ${s3Status}`);
       } catch (error) {
         console.error(
-          env,
-          "Upload failed, deployment skipped for environment:"
+          "Upload failed, deployment skipped for environment: ", env
         );
       }
 
@@ -455,10 +454,10 @@ async function createBuild(baseUrl, auth) {
 
   try {
     const response = await axios.post(apiUrl, {}, {headers});
-    console.log(`${response.data.buildNum} Created`);
+    console.log(`${response?.data?.buildNum || "Build" } created`);
     return response.build.buildNum;
   } catch (error) {
-    console.error("Error creating build");
+    console.error("Error creating build:", error);
   }
 }
 
