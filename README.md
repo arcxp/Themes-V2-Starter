@@ -12,7 +12,7 @@ Make sure `"buildSiteStyles": true,` is included for the styling to work locally
 ## Environment Variables
 If you don't already have a `.env` file in the root directory, create the file and add:
 ```
-CONTENT_BASE=https://api.sandbox.vanguardiaeluniversal.arcpublishing.com
+CONTENT_BASE=https://api.sandbox.{org}.arcpublishing.com
 ARC_ACCESS_TOKEN=<<YOUR-ACCESS-TOKEN>>
 FUSION_RELEASE=<<Fusion-Version>> If no fusion version is specified the latest will be added by default
 ```
