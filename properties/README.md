@@ -2,9 +2,7 @@
 
 Properties are site-specific values that may be accessed anywhere in your bundle.
 
-Properties are accessible on Consumers as `siteProperties`. This object will include all global properties, as well as extra or overridden site-specific values for the current site.
-
-In case you need more control of properties for various other sites, the `fusion:properties` package exports a function which should be called with a site name and will return the properties specific to that site.
+Properties are accessible via `getProperties()` through the `fusion:properties` import. This object will include all global properties, as well as extra or overridden site-specific values for the current site.
 
 ## Global values
 
@@ -19,43 +17,29 @@ Site-specific values should be defined in `properties/sites/${site}.js` (or `pro
 `properties/index.json`
 ```json
 {
-  "value": "global"
+  "myProperty": "global"
 }
 ```
 
 `properties/sites/site1.json`
 ```json
 {
-  "value": "site1"
+  "myProperty": "site1"
 }
 ```
 
-`components/features/my-component.jsx`
-```js
-import Consumer from 'fusion:consumer'
-
-@Consumer
-const MyComponent = (props) => {
-  return <div>{props.siteProperties.value}</div>
-}
-
-export default Consumer
-```
-
-When used in `site1`, the result will be `<div>site1</div>`; otherwise, it will be `<div>global</div>`
-
-`components/features/site1-component.jsx`
+`components/features/component.jsx`
 ```js
 import getProperties from 'fusion:properties'
 
-@Consumer
 const MyComponent = (props) => {
-  const site1Vars = getProperties('site1')
+  const { arcSite } = props
+  const { myProperty } = getProperties(arcSite)
 
-  return <div>{site1Vars.value}</div>
+  return <div>{myProperty}</div>
 }
 
-export default Consumer
+export default MyComponent
 ```
 
-This will always result in `<div>site1</div>`.
+When used in `site1`, the result will be `<div>site1</div>`; otherwise, it will be `<div>global</div>`

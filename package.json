@@ -1,23 +1,7 @@
 {
-  "name": "themes-v2-bundle",
+  "name": "themes-v2-feature-pack",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "arc-themes": "node arc-themes.js",
-    "fusion": "fusion",
-    "lint": "eslint --ext js --ext jsx components content --no-error-on-unmatched-pattern",
-    "start": "fusion start",
-    "test": "jest",
-    "test:coverage": "jest --coverage || true",
-    "prepare": "husky install",
-    "format:styles": "prettier --write site-styles/*",
-    "format": "prettier --write ."
-  },
-  "lint-staged": {
-    "*.scss": "npm run format:styles"
-  },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "devDependencies": {
     "@arc-fusion/cli": "^2.1.0",
@@ -69,5 +53,15 @@
     "url": "git+https://github.com/WPMedia/arc-themes-feature-pack.git"
   },
   "homepage": "https://github.com/WPMedia/arc-themes-feature-pack#readme",
-  "description": "This is the PoC testbed repo for creating themes in Fusion"
+  "description": "This is the barebones feature pack for creating a themes site in Arc Fusion",
+  "main": "index.js",
+  "scripts": {
+    "arc-themes": "node arc-themes.js",
+    "fusion": "fusion",
+    "start": "fusion start"
+  },
+  "devDependencies": {
+    "@arc-fusion/cli": "^2.2.4",
+    "axios": "^1.6.8"
+  }
 }
