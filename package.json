@@ -3,6 +3,51 @@
   "version": "1.0.0",
   "keywords": [],
   "license": "ISC",
+  "devDependencies": {
+    "@arc-fusion/cli": "^2.1.0",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-react": "^7.0.0",
+    "axios": "^1.6.7",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.8.0",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.13.0",
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^22.14.1",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-react-hooks": "^2.4.0",
+    "form-data": "^4.0.0",
+    "husky": "^7.0.4",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.4.3",
+    "lint-staged": "^12.3.7",
+    "prettier": "^2.6.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "util": "^0.12.5"
+  },
+  "dependencies": {
+    "semver": "^7.6.0",
+    "thumbor-lite": "^0.1.6"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/(build|docs|node_modules)/"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/setup_tests.js"
+    ],
+    "collectCoverageFrom": [
+      "components/**/*.{js,jsx}"
+    ],
+    "moduleNameMapper": {
+      "^.+\\.(css|less|scss)$": "identity-obj-proxy"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WPMedia/arc-themes-feature-pack.git"
