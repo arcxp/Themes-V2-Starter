@@ -2,7 +2,7 @@
 	"org": "@wpmedia/",
 	"localeList": ["en", "sv", "no", "fr", "de", "es", "ja", "ko", "pt"],
 	"theme": "news",
-	"themesReleaseVersion": "arc-themes-release-version-2.1.0",
+	"themesReleaseVersion": "arc-themes-release-version-2.5.0",
 	"themeComponents": "@wpmedia/arc-themes-components",
 	"buildSiteStyles": true,
 	"blocks": [
