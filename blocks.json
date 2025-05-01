@@ -1,133 +1,134 @@
 {
-  "org": "@wpmedia/",
-  "localeList": ["en", "sv", "no", "fr", "de", "es", "ja", "ko", "pt"],
-  "theme": "news",
-  "themesReleaseVersion": "arc-themes-release-version-2.5.0",
-  "themeComponents": "@wpmedia/arc-themes-components",
-  "buildSiteStyles": true,
-  "blocks": [
-    "@wpmedia/ad-taboola-block",
-    "@wpmedia/ads-block",
-    "@wpmedia/alert-bar-block",
-    "@wpmedia/alert-bar-content-source-block",
-    "@wpmedia/alias-tokens",
-    "@wpmedia/article-body-block",
-    "@wpmedia/article-tag-block",
-    "@wpmedia/author-content-source-block",
-    "@wpmedia/author-bio-block",
-    "@wpmedia/breakpoint-tokens",
-    "@wpmedia/byline-block",
-    "@wpmedia/card-list-block",
-    "@wpmedia/collections-content-source-block",
-    "@wpmedia/content-api-source-block",
-    "@wpmedia/full-author-bio-block",
-    "@wpmedia/date-block",
-    "@wpmedia/default-output-block",
-    "@wpmedia/double-chain-block",
-    "@wpmedia/divider-block",
-    "@wpmedia/extra-large-manual-promo-block",
-    "@wpmedia/extra-large-promo-block",
-    "@wpmedia/footer-block",
-    "@wpmedia/global-phrases-block",
-    "@wpmedia/global-tokens",
-    "@wpmedia/gallery-block",
-    "@wpmedia/header-block",
-    "@wpmedia/header-nav-chain-block",
-    "@wpmedia/headline-block",
-    "@wpmedia/htmlbox-block",
-    "@wpmedia/identity-block",
-    "@wpmedia/large-manual-promo-block",
-    "@wpmedia/large-promo-block",
-    "@wpmedia/lead-art-block",
-    "@wpmedia/links-bar-block",
-    "@wpmedia/masthead-block",
-    "@wpmedia/medium-manual-promo-block",
-    "@wpmedia/medium-promo-block",
-    "@wpmedia/numbered-list-block",
-    "@wpmedia/overline-block",
-    "@wpmedia/quad-chain-block",
-    "@wpmedia/related-content-content-source-block",
-    "@wpmedia/results-list-block",
-    "@wpmedia/right-rail-advanced-block",
-    "@wpmedia/right-rail-block",
-    "@wpmedia/search-content-source-block",
-    "@wpmedia/search-results-list-block",
-    "@wpmedia/section-title-block",
-    "@wpmedia/share-bar-block",
-    "@wpmedia/signing-service-content-source-block",
-    "@wpmedia/simple-list-block",
-    "@wpmedia/single-chain-block",
-    "@wpmedia/single-column-layout-block",
-    "@wpmedia/site-hierarchy-content-block",
-    "@wpmedia/small-manual-promo-block",
-    "@wpmedia/small-promo-block",
-    "@wpmedia/story-feed-author-content-source-block",
-    "@wpmedia/story-feed-query-content-source-block",
-    "@wpmedia/story-feed-sections-content-source-block",
-    "@wpmedia/story-feed-tag-content-source-block",
-    "@wpmedia/subheadline-block",
-    "@wpmedia/tag-title-block",
-    "@wpmedia/tags-content-source-block",
-    "@wpmedia/top-table-list-block",
-    "@wpmedia/triple-chain-block",
-    "@wpmedia/unpublished-content-source-block",
-    "@wpmedia/video-player-block"
-  ],
-  "values": {
-    "default": {
-      "siteProperties": {
-        "websiteDomain": "https://www.arcintelligencer.com",
-        "websiteName": "Website Display Name",
-        "lightBackgroundLogo": "https://static.themebuilder.aws.arc.pub/themesinternal-custom1-sandbox/1646855268779.png",
-        "primaryLogo": "https://static.themebuilder.aws.arc.pub/themesinternal-custom1-sandbox/1646855268868.png",
-        "fallbackImage": "https://static.themebuilder.aws.arc.pub/themesinternal-custom1-sandbox/1636037887909.png",
-        "primaryLogoAlt": "The Arc Intelligencer",
-        "facebookPage": "washingtonpost",
-        "twitterUsername": "washingtonpost",
-        "resizerURL": "https://themesinternal-themesinternal-sandbox.web.arc-cdn.net/resizer/v2/",
-        "rssUrl": "http://feeds.washingtonpost.com/rss/homepage",
-        "copyrightText": "arcintelligencer.com © 1996-2020 The Arc Intelligencer",
-        "dangerouslyInjectJS": [],
-        "dateLocalization": {
-          "language": "en",
-          "timeZone": "America/New_York",
-          "dateTimeFormat": "%B %d, %Y at %l:%M %P %Z",
-          "dateFormat": "%B %d, %Y"
-        },
-        "locale": "en",
-        "fontUrl": [
-          "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@400;700&display=swap"
-        ],
-        "chartbeatAccountId": "12345",
-        "chartbeatDomain": "arcintelligencer.com",
-        "textDirection": "ltr",
-        "textFlow": "horizontal-tb",
-        "api": {
-          "identity": {
-            "origin": "https://corecomponents-the-prophet-prod.api.cdn.arcpublishing.com"
-          }
-        }
-      }
-    },
-    "sites": {
-      "arc-demo-1": {
-        "siteProperties": {
-          "websiteDomain": "https://www.arcdemo1.com",
-          "websiteName": "Arc Demo 1",
-          "primaryLogoAlt": "Arc Demo 1 logo",
-          "facebookPage": "https://www.facebook.com/arcdemo1fb",
-          "twitterUsername": "arcdemo1twitter"
-        }
-      },
-      "arc-demo-2": {
-        "siteProperties": {
-          "websiteDomain": "https://www.arcdemo2.com",
-          "websiteName": "Arc Demo 2",
-          "primaryLogoAlt": "Arc Demo 2 logo",
-          "facebookPage": "https://www.facebook.com/arcdemo2fb",
-          "twitterUsername": "arcdemo2twitter"
-        }
-      }
-    }
-  }
+	"org": "@wpmedia/",
+	"localeList": ["en", "sv", "no", "fr", "de", "es", "ja", "ko", "pt"],
+	"theme": "news",
+	"themesReleaseVersion": "arc-themes-release-version-2.6.0",
+	"themeComponents": "@wpmedia/arc-themes-components",
+	"buildSiteStyles": true,
+	"blocks": [
+		"@wpmedia/ad-taboola-block",
+		"@wpmedia/ads-block",
+		"@wpmedia/alert-bar-block",
+		"@wpmedia/alert-bar-content-source-block",
+		"@wpmedia/alias-tokens",
+		"@wpmedia/article-body-block",
+		"@wpmedia/article-tag-block",
+		"@wpmedia/author-content-source-block",
+		"@wpmedia/author-bio-block",
+		"@wpmedia/breakpoint-tokens",
+		"@wpmedia/byline-block",
+		"@wpmedia/card-list-block",
+		"@wpmedia/collections-content-source-block",
+		"@wpmedia/content-api-source-block",
+		"@wpmedia/full-author-bio-block",
+		"@wpmedia/date-block",
+		"@wpmedia/default-output-block",
+		"@wpmedia/double-chain-block",
+		"@wpmedia/divider-block",
+		"@wpmedia/extra-large-manual-promo-block",
+		"@wpmedia/extra-large-promo-block",
+		"@wpmedia/footer-block",
+		"@wpmedia/global-phrases-block",
+		"@wpmedia/global-tokens",
+		"@wpmedia/gallery-block",
+		"@wpmedia/header-block",
+		"@wpmedia/header-nav-chain-block",
+		"@wpmedia/headline-block",
+		"@wpmedia/htmlbox-block",
+		"@wpmedia/identity-block",
+		"@wpmedia/large-manual-promo-block",
+		"@wpmedia/large-promo-block",
+		"@wpmedia/lead-art-block",
+		"@wpmedia/links-bar-block",
+		"@wpmedia/masthead-block",
+		"@wpmedia/medium-manual-promo-block",
+		"@wpmedia/medium-promo-block",
+		"@wpmedia/numbered-list-block",
+		"@wpmedia/overline-block",
+		"@wpmedia/quad-chain-block",
+		"@wpmedia/related-content-content-source-block",
+		"@wpmedia/results-list-block",
+		"@wpmedia/right-rail-advanced-block",
+		"@wpmedia/right-rail-block",
+		"@wpmedia/search-content-source-block",
+		"@wpmedia/search-results-list-block",
+		"@wpmedia/section-title-block",
+		"@wpmedia/share-bar-block",
+		"@wpmedia/signing-service-content-source-block",
+		"@wpmedia/simple-list-block",
+		"@wpmedia/single-chain-block",
+		"@wpmedia/single-column-layout-block",
+		"@wpmedia/site-hierarchy-content-block",
+		"@wpmedia/small-manual-promo-block",
+		"@wpmedia/small-promo-block",
+		"@wpmedia/story-feed-author-content-source-block",
+		"@wpmedia/story-feed-query-content-source-block",
+		"@wpmedia/story-feed-sections-content-source-block",
+		"@wpmedia/story-feed-tag-content-source-block",
+		"@wpmedia/subheadline-block",
+		"@wpmedia/tag-title-block",
+		"@wpmedia/tags-content-source-block",
+		"@wpmedia/top-table-list-block",
+		"@wpmedia/triple-chain-block",
+		"@wpmedia/unpublished-content-source-block",
+		"@wpmedia/video-player-block"
+	],
+	"values": {
+		"default": {
+			"siteProperties": {
+				"websiteDomain": "https://www.arcintelligencer.com",
+				"websiteName": "Website Display Name",
+				"lightBackgroundLogo": "https://static.themebuilder.aws.arc.pub/themesinternal-custom1-sandbox/1646855268779.png",
+				"primaryLogo": "https://static.themebuilder.aws.arc.pub/themesinternal-custom1-sandbox/1646855268868.png",
+				"fallbackImage": "https://static.themebuilder.aws.arc.pub/themesinternal-custom1-sandbox/1636037887909.png",
+				"primaryLogoAlt": "The Arc Intelligencer",
+				"facebookPage": "washingtonpost",
+				"twitterUsername": "washingtonpost",
+				"resizerURL": "https://themesinternal-themesinternal-sandbox.web.arc-cdn.net/resizer/v2/",
+				"rssUrl": "http://feeds.washingtonpost.com/rss/homepage",
+				"copyrightText": "arcintelligencer.com © 1996-2020 The Arc Intelligencer",
+				"dangerouslyInjectJS": [],
+				"dateLocalization": {
+					"language": "en",
+					"timeZone": "America/New_York",
+					"dateTimeFormat": "%B %d, %Y at %l:%M %P %Z",
+					"dateFormat": "%B %d, %Y"
+				},
+				"locale": "en",
+				"taboolaPublisherId": "cox-network",
+				"fontUrl": [
+					"https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@400;700&display=swap"
+				],
+				"chartbeatAccountId": "12345",
+				"chartbeatDomain": "arcintelligencer.com",
+				"textDirection": "ltr",
+				"textFlow": "horizontal-tb",
+				"api": {
+					"identity": {
+						"origin": "https://corecomponents-the-prophet-prod.api.cdn.arcpublishing.com"
+					}
+				}
+			}
+		},
+		"sites": {
+			"arc-demo-1": {
+				"siteProperties": {
+					"websiteDomain": "https://www.arcdemo1.com",
+					"websiteName": "Arc Demo 1",
+					"primaryLogoAlt": "Arc Demo 1 logo",
+					"facebookPage": "https://www.facebook.com/arcdemo1fb",
+					"twitterUsername": "arcdemo1twitter"
+				}
+			},
+			"arc-demo-2": {
+				"siteProperties": {
+					"websiteDomain": "https://www.arcdemo2.com",
+					"websiteName": "Arc Demo 2",
+					"primaryLogoAlt": "Arc Demo 2 logo",
+					"facebookPage": "https://www.facebook.com/arcdemo2fb",
+					"twitterUsername": "arcdemo2twitter"
+				}
+			}
+		}
+	}
 }

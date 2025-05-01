@@ -13,3 +13,5 @@ node_modules
 /data-*
 /dist
 /environment/localhost.json
+
+themes-provisioning.js
