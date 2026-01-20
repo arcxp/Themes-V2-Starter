@@ -248,7 +248,7 @@ async function updateFiles() {
     };
 
     const response = await axios.get(apiUrl, {headers});
-    const themesVersion = await fetchThemesVersion();
+    const themesVersion = "arc-themes-release-version-4.0.0";
     const defaultSite = await fetchDefaultSiteId();
     console.log("Themes Version:", themesVersion);
 
@@ -340,7 +340,7 @@ function addToGitignore() {
 
 async function configureBundle() {
   try {
-    await loadTables();
+    // await loadTables();
     await updateFiles();
     await fetchResizerVersion();
     await addToGitignore();
@@ -594,7 +594,7 @@ async function promoteBuild(baseUrl, auth) {
 async function configureAndDeploy(environments = envs) {
   try {
     await addToGitignore();
-    await loadTables();
+    // await loadTables();
     await updateFiles();
     await fetchResizerVersion();
     await uploadAndDeploy(environments);
