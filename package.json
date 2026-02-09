@@ -27,8 +27,8 @@
     "jest": "^29.4.3",
     "lint-staged": "^12.3.7",
     "prettier": "^2.6.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "util": "^0.12.5"
   },
   "dependencies": {
@@ -60,5 +60,14 @@
     "arc-themes": "node arc-themes.js",
     "fusion": "fusion",
     "start": "fusion start"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-is": "19.2.3",
+    "@wpmedia/arc-themes-components": {
+      "react": "19.2.3",
+      "react-dom": "19.2.3"
+    }
   }
 }
