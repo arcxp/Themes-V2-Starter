@@ -13,8 +13,6 @@
 		"@wpmedia/alias-tokens",
 		"@wpmedia/article-body-block",
 		"@wpmedia/article-tag-block",
-		"@wpmedia/author-content-source-block",
-		"@wpmedia/author-bio-block",
 		"@wpmedia/breakpoint-tokens",
 		"@wpmedia/byline-block",
 		"@wpmedia/card-list-block",

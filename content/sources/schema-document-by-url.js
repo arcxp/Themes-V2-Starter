@@ -1,3 +1,4 @@
+import axios from "axios";
 import { ARC_ACCESS_TOKEN, CONTENT_BASE } from "fusion:environment";
 
 const params = [
@@ -8,47 +9,43 @@ const params = [
   },
   {
     displayName: "Schema Name",
-    name: "schemaName",
+    name: "schema_name",
     type: "text",
+  },
+  {
+    displayName: "Website",
+    name: "website",
+    type: "site",
   },
 ];
 
-const fetch = async ({ url, schemaName, "arc-site": website }, { arcSite }) => {
-  if (!url || !schemaName) {
-    return "";
-  }
-
-  const siteValue = website || arcSite;
-  if (!siteValue) {
+const fetch = ({ url, schema_name, website }, { cachedCall }) => {
+  if (!url || !schema_name || !website) {
     return "";
   }
 
   const urlSearch = new URLSearchParams({
     url: url.trim(),
-    schema_name: schemaName.trim(),
-    website: siteValue,
+    schema_name: schema_name.trim(),
+    website,
   });
 
-  const res = await globalThis.fetch(
-    `${CONTENT_BASE}/api/v5/search/schemas/by-url?${urlSearch.toString()}`,
-    {
-      method: "GET",
-      headers: {
-        "content-type": "application/json",
-        Authorization: `Bearer ${ARC_ACCESS_TOKEN}`,
-      },
-    }
-  );
-
-  const data = await res.json();
-
-  if (!data) {
-    const error = new Error("Document not found");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  return data;
+  return axios({
+    url: `${CONTENT_BASE}/content/v5/search/schemas/by-url?${urlSearch.toString()}`,
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${ARC_ACCESS_TOKEN}`,
+    },
+    method: "GET",
+  })
+    .then(({ data }) => {
+      if (!data) {
+        const error = new Error("Document not found");
+        error.statusCode = 404;
+        throw error;
+      }
+      return data;
+    });
 };
 
 export default {
