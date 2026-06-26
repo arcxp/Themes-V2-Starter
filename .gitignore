@@ -15,3 +15,8 @@ node_modules
 /environment/localhost.json
 
 themes-provisioning.js
+
+.claude-mounts.json
+.claude/settings.local.json
+.devcontainer-logs
+.devcontainer-exclude
